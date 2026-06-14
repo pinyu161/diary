@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>今日記錄 — 布丁狗日記</title>
+  <title>今日記錄 — 我的日記</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 <nav>
-  <a class="nav-brand" href="/">🐶 布丁狗日記</a>
+  <a class="nav-brand" href="/" id="nav-brand">📓 的日記</a>
   <div class="nav-links">
     <a href="/">首頁</a>
     <a href="/record" class="active">記錄</a>
@@ -27,17 +27,17 @@
 
   <!-- 身體狀況 -->
   <div class="card">
-    <div class="card-title">⚖️ 身體狀況</div>
+    <div class="card-title">👤 身體狀況</div>
     <div class="form-grid">
       <div class="form-row">
-        <label>體重（kg）</label>
+        <label>體重（kg）🐖</label>
         <input type="number" id="weight" placeholder="例：52.3" step="0.1" min="20" max="200">
       </div>
       <div class="form-row">
-        <label>今天有沒有大便 🚽</label>
+        <label>今天有沒有大便 💩</label>
         <label class="check-row" style="margin-top:0;">
           <input type="checkbox" id="had-bowel">
-          <span>有！順利排便 ✅</span>
+          <span>有！順利排便 💩</span>
         </label>
       </div>
     </div>
@@ -50,44 +50,51 @@
       </div>
     </div>
     <div class="form-row">
-      <label>今日運動 🏃</label>
+      <label>今日運動 🏋🏻‍♀️</label>
       <input type="text" id="exercise" placeholder="例：跑步30分鐘、瑜珈、散步（沒有就留空）">
     </div>
   </div>
 
   <!-- 飲食 -->
   <div class="card">
-    <div class="card-title">🍱 三餐記錄</div>
+    <div class="card-title">🤤 三餐記錄</div>
     <div class="form-row">
-      <label>早餐 🍳</label>
+      <label>早餐 🥯</label>
       <input type="text" id="breakfast" placeholder="例：吐司、豆漿、水煮蛋">
     </div>
     <div class="form-row">
-      <label>午餐 🍜</label>
+      <label>午餐 🍱</label>
       <input type="text" id="lunch" placeholder="例：雞肉飯、燙青菜、蛤蜊湯">
     </div>
     <div class="form-row">
-      <label>晚餐 🌙</label>
+      <label>晚餐 🥗</label>
       <input type="text" id="dinner" placeholder="例：火鍋、沙拉、水果">
+    </div>
+    <div class="form-row">
+      <label>點心／零食 🍨</label>
+      <input type="text" id="snack" placeholder="例：珍珠奶茶、餅乾、冰淇淋（沒有就留空）">
     </div>
   </div>
 
   <!-- 心情 -->
   <div class="card">
-    <div class="card-title">😊 今日心情</div>
+    <div class="card-title">🙂 今日心情</div>
     <div class="mood-picker" id="mood-picker">
-      <button class="mood-btn" data-emoji="😊" title="開心">😊</button>
-      <button class="mood-btn" data-emoji="🥰" title="超開心">🥰</button>
-      <button class="mood-btn" data-emoji="😄" title="哈哈大笑">😄</button>
-      <button class="mood-btn" data-emoji="😌" title="平靜">😌</button>
-      <button class="mood-btn" data-emoji="😴" title="好睏">😴</button>
+      <button class="mood-btn" data-emoji="😆" title="哈哈大笑">😆</button>
+      <button class="mood-btn" data-emoji="🥹" title="感動">🥹</button>
+      <button class="mood-btn" data-emoji="🥲" title="含淚微笑">🥲</button>
+      <button class="mood-btn" data-emoji="🙂" title="還不錯">🙂</button>
+      <button class="mood-btn" data-emoji="🥰" title="超愛">🥰</button>
+      <button class="mood-btn" data-emoji="😋" title="好吃好爽">😋</button>
+      <button class="mood-btn" data-emoji="🥳" title="超開心">🥳</button>
       <button class="mood-btn" data-emoji="😔" title="有點難過">😔</button>
-      <button class="mood-btn" data-emoji="😢" title="難過">😢</button>
-      <button class="mood-btn" data-emoji="😤" title="有點煩">😤</button>
-      <button class="mood-btn" data-emoji="😡" title="生氣">😡</button>
-      <button class="mood-btn" data-emoji="😰" title="焦慮">😰</button>
-      <button class="mood-btn" data-emoji="🤒" title="身體不舒服">🤒</button>
-      <button class="mood-btn" data-emoji="🥳" title="超爽的一天">🥳</button>
+      <button class="mood-btn" data-emoji="😕" title="有點困惑">😕</button>
+      <button class="mood-btn" data-emoji="😭" title="大哭">😭</button>
+      <button class="mood-btn" data-emoji="🤬" title="超生氣">🤬</button>
+      <button class="mood-btn" data-emoji="🤯" title="爆頭">🤯</button>
+      <button class="mood-btn" data-emoji="😐" title="普通">😐</button>
+      <button class="mood-btn" data-emoji="😪" title="好睏">😪</button>
+      <button class="mood-btn" data-emoji="😷" title="身體不舒服">😷</button>
     </div>
     <input type="hidden" id="mood-emoji">
   </div>
@@ -97,13 +104,13 @@
     <div class="card-title">📓 今日日記</div>
     <div class="form-row">
       <label>寫下今天的心情故事吧～</label>
-      <textarea id="diary" rows="5" placeholder="今天發生了什麼事呢？有什麼想說的都可以寫在這裡 🐶"></textarea>
+      <textarea id="diary" rows="5" placeholder="今天發生了什麼事呢？有什麼想說的都可以寫在這裡 📓"></textarea>
     </div>
   </div>
 
   <!-- 感恩 -->
   <div class="card">
-    <div class="card-title">🙏 今日感恩三件事</div>
+    <div class="card-title">🙏🏻 今日感恩三件事</div>
     <div class="form-row">
       <label>感恩第 1 件事</label>
       <input type="text" id="gratitude-1" placeholder="例：今天天氣很好">
@@ -119,7 +126,7 @@
   </div>
 
   <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:4px;">
-    <button class="btn btn-primary" onclick="saveRecord()">💾 儲存今天的記錄</button>
+    <button class="btn btn-primary" onclick="saveRecord()">📩 儲存今天的記錄</button>
     <button class="btn btn-secondary" onclick="clearForm()">🗑️ 清除</button>
   </div>
 </div>
@@ -127,18 +134,17 @@
 <div id="toast"></div>
 
 <script>
-// 設定今天日期
+// 名字
+const savedName = localStorage.getItem('diary_username');
+if (savedName) document.getElementById('nav-brand').textContent = `📓 ${savedName}的日記`;
+
 const today = new Date().toISOString().split('T')[0];
 document.getElementById('record-date').value = today;
 
-// 水量滑桿
 const waterSlider = document.getElementById('water-ml');
 const waterVal = document.getElementById('water-val');
-waterSlider.addEventListener('input', () => {
-  waterVal.textContent = waterSlider.value;
-});
+waterSlider.addEventListener('input', () => { waterVal.textContent = waterSlider.value; });
 
-// 心情選擇
 document.querySelectorAll('.mood-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
@@ -147,7 +153,6 @@ document.querySelectorAll('.mood-btn').forEach(btn => {
   });
 });
 
-// 載入當天已有資料
 const dateInput = document.getElementById('record-date');
 dateInput.addEventListener('change', () => loadRecord(dateInput.value));
 
@@ -160,6 +165,7 @@ function loadRecord(date) {
       document.getElementById('breakfast').value = d.breakfast ?? '';
       document.getElementById('lunch').value = d.lunch ?? '';
       document.getElementById('dinner').value = d.dinner ?? '';
+      document.getElementById('snack').value = d.snack ?? '';
       document.getElementById('water-ml').value = d.water_ml ?? 1500;
       waterVal.textContent = d.water_ml ?? 1500;
       document.getElementById('exercise').value = d.exercise ?? '';
@@ -168,7 +174,6 @@ function loadRecord(date) {
       document.getElementById('gratitude-1').value = d.gratitude_1 ?? '';
       document.getElementById('gratitude-2').value = d.gratitude_2 ?? '';
       document.getElementById('gratitude-3').value = d.gratitude_3 ?? '';
-      // 心情
       document.getElementById('mood-emoji').value = d.mood_emoji ?? '';
       document.querySelectorAll('.mood-btn').forEach(b => {
         b.classList.toggle('selected', b.dataset.emoji === d.mood_emoji);
@@ -176,7 +181,6 @@ function loadRecord(date) {
     });
 }
 
-// 初始載入
 loadRecord(today);
 
 function saveRecord() {
@@ -186,6 +190,7 @@ function saveRecord() {
     breakfast: document.getElementById('breakfast').value.trim() || null,
     lunch: document.getElementById('lunch').value.trim() || null,
     dinner: document.getElementById('dinner').value.trim() || null,
+    snack: document.getElementById('snack').value.trim() || null,
     water_ml: parseInt(document.getElementById('water-ml').value),
     exercise: document.getElementById('exercise').value.trim() || null,
     had_bowel_movement: document.getElementById('had-bowel').checked,
@@ -211,7 +216,7 @@ function saveRecord() {
 
 function clearForm(resetDate = true) {
   if (resetDate) document.getElementById('record-date').value = today;
-  ['weight','breakfast','lunch','dinner','exercise','diary',
+  ['weight','breakfast','lunch','dinner','snack','exercise','diary',
    'gratitude-1','gratitude-2','gratitude-3','mood-emoji'].forEach(id => {
     document.getElementById(id).value = '';
   });

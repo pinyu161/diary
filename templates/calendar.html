@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>月曆日記 — 布丁狗日記</title>
+  <title>月曆日記 — 我的日記</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 <nav>
-  <a class="nav-brand" href="/">🐶 布丁狗日記</a>
+  <a class="nav-brand" href="/" id="nav-brand">📓 的日記</a>
   <div class="nav-links">
     <a href="/">首頁</a>
     <a href="/record">記錄</a>
@@ -37,12 +37,11 @@
   </div>
 
   <div class="card" style="font-size:0.82rem;color:var(--brown-light);">
-    <div class="card-title">📖 使用說明</div>
-    有記錄的日期會顯示你的心情 emoji，點擊任一日期可以查看當天的完整記錄。今天的日期會有特別標示 🐶
+    <div class="card-title">💡 使用說明</div>
+    有記錄的日期會顯示你的心情 emoji，點擊任一日期可以查看當天的完整記錄。今天的日期會有 🌀 特別標示！
   </div>
 </div>
 
-<!-- 彈窗 -->
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
@@ -52,6 +51,9 @@
 </div>
 
 <script>
+const savedName = localStorage.getItem('diary_username');
+if (savedName) document.getElementById('nav-brand').textContent = `📓 ${savedName}的日記`;
+
 const today = new Date();
 let viewYear = today.getFullYear();
 let viewMonth = today.getMonth() + 1;
@@ -62,7 +64,6 @@ function pad(n) { return String(n).padStart(2, '0'); }
 function renderCalendar() {
   document.getElementById('cal-title').textContent =
     `${viewYear} 年 ${pad(viewMonth)} 月`;
-
   fetch(`/api/records/${viewYear}/${viewMonth}`)
     .then(r => r.json())
     .then(rows => {
@@ -75,7 +76,6 @@ function renderCalendar() {
 function buildGrid() {
   const body = document.getElementById('cal-body');
   body.innerHTML = '';
-
   const firstDay = new Date(viewYear, viewMonth - 1, 1).getDay();
   const daysInMonth = new Date(viewYear, viewMonth, 0).getDate();
   const todayStr = today.toISOString().split('T')[0];
@@ -88,9 +88,10 @@ function buildGrid() {
 
   for (let d = 1; d <= daysInMonth; d++) {
     const dateStr = `${viewYear}-${pad(viewMonth)}-${pad(d)}`;
+    const isToday = dateStr === todayStr;
     const cell = document.createElement('div');
-    cell.className = 'cal-cell' + (dateStr === todayStr ? ' today' : '');
-    cell.innerHTML = `<span class="date-num">${d}</span>` +
+    cell.className = 'cal-cell' + (isToday ? ' today' : '');
+    cell.innerHTML = `<span class="date-num">${isToday ? '🌀' : d}</span>` +
       (monthData[dateStr]?.mood_emoji
         ? `<span class="date-emoji">${monthData[dateStr].mood_emoji}</span>` : '');
     cell.addEventListener('click', () => openModal(dateStr));
@@ -101,12 +102,11 @@ function buildGrid() {
 function openModal(date) {
   document.getElementById('modal-date').textContent = date.replace(/-/g, ' / ') + ' 的記錄';
   const body = document.getElementById('modal-body');
-
   fetch(`/api/record/${date}`)
     .then(r => r.json())
     .then(d => {
       if (!d) {
-        body.innerHTML = '<div class="empty-today">這天還沒有記錄哦 🐶<br><a href="/record" style="color:var(--brown-mid);font-weight:700;">去填寫</a></div>';
+        body.innerHTML = '<div class="empty-today">這天還沒有記錄哦 📓<br><a href="/record" style="color:var(--brown-mid);font-weight:700;">去填寫</a></div>';
       } else {
         const rows = [
           ['心情', d.mood_emoji ?? '—'],
@@ -114,9 +114,10 @@ function openModal(date) {
           ['早餐', d.breakfast ?? '—'],
           ['午餐', d.lunch ?? '—'],
           ['晚餐', d.dinner ?? '—'],
+          ['點心', d.snack ?? '—'],
           ['喝水', d.water_ml ? d.water_ml + ' ml' : '—'],
           ['運動', d.exercise ?? '無'],
-          ['大便', d.had_bowel_movement ? '✅ 有' : '❌ 無'],
+          ['大便', d.had_bowel_movement ? '💩 有' : '❌ 無'],
           ['感恩1', d.gratitude_1 ?? '—'],
           ['感恩2', d.gratitude_2 ?? '—'],
           ['感恩3', d.gratitude_3 ?? '—'],
@@ -133,20 +134,14 @@ function openModal(date) {
 function closeModal() {
   document.getElementById('modal-overlay').classList.remove('open');
 }
-
 document.getElementById('modal-overlay').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
-
 document.getElementById('prev-month').addEventListener('click', () => {
-  viewMonth--;
-  if (viewMonth < 1) { viewMonth = 12; viewYear--; }
-  renderCalendar();
+  viewMonth--; if (viewMonth < 1) { viewMonth = 12; viewYear--; } renderCalendar();
 });
 document.getElementById('next-month').addEventListener('click', () => {
-  viewMonth++;
-  if (viewMonth > 12) { viewMonth = 1; viewYear++; }
-  renderCalendar();
+  viewMonth++; if (viewMonth > 12) { viewMonth = 1; viewYear++; } renderCalendar();
 });
 
 renderCalendar();

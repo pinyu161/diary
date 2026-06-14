@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>布丁狗日記 🐶</title>
+  <title>我的日記 📓</title>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
 <nav>
-  <a class="nav-brand" href="/">🐶 布丁狗日記</a>
+  <a class="nav-brand" href="/" id="nav-brand">📓 的日記</a>
   <div class="nav-links">
     <a href="/" class="active">首頁</a>
     <a href="/record">記錄</a>
@@ -18,21 +18,41 @@
 </nav>
 
 <div class="page">
+  <!-- 名字設定 modal -->
+  <div class="modal-overlay" id="name-modal" style="display:flex;">
+    <div class="modal" style="text-align:center;">
+      <div style="font-size:2.5rem;margin-bottom:8px;">📓</div>
+      <div style="font-size:1.2rem;font-weight:800;margin-bottom:6px;color:var(--brown);">歡迎來到你的日記！</div>
+      <div style="font-size:0.85rem;color:var(--brown-light);margin-bottom:20px;">請輸入你的名字</div>
+      <input type="text" id="name-input" placeholder="例：品伃" style="text-align:center;font-size:1.1rem;font-weight:700;margin-bottom:14px;">
+      <br>
+      <button class="btn btn-primary" onclick="saveName()">開始記錄 ✍🏻</button>
+    </div>
+  </div>
+
   <div class="hero">
-    <div class="hero-dog">🐶</div>
-    <div class="hero-title">今天也要好好生活！</div>
+    <!-- 頭像上傳 -->
+    <div style="position:relative;display:inline-block;margin-bottom:12px;">
+      <div id="avatar-wrap" style="width:80px;height:80px;border-radius:50%;overflow:hidden;border:3px solid var(--brown);margin:0 auto;background:var(--yellow-deep);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="document.getElementById('avatar-input').click()">
+        <img id="avatar-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none;">
+        <span id="avatar-placeholder" style="font-size:2.2rem;">🐖</span>
+      </div>
+      <input type="file" id="avatar-input" accept="image/*" style="display:none;" onchange="uploadAvatar(event)">
+      <div style="position:absolute;bottom:0;right:0;background:var(--brown);color:var(--yellow);border-radius:50%;width:22px;height:22px;font-size:0.7rem;display:flex;align-items:center;justify-content:center;pointer-events:none;">✏️</div>
+    </div>
+    <div class="hero-title" id="hero-title">的日記</div>
     <div class="hero-sub" id="today-date"></div>
   </div>
 
-  <div class="quick-grid" id="quick-grid">
-    <div class="quick-card"><div class="qc-icon">⚖️</div><div class="qc-val" id="q-weight">—</div><div class="qc-label">今日體重 kg</div></div>
-    <div class="quick-card"><div class="qc-icon">😊</div><div class="qc-val" id="q-mood">—</div><div class="qc-label">今日心情</div></div>
+  <div class="quick-grid">
+    <div class="quick-card"><div class="qc-icon">🐖</div><div class="qc-val" id="q-weight">—</div><div class="qc-label">今日體重 kg</div></div>
+    <div class="quick-card"><div class="qc-icon">🙂</div><div class="qc-val" id="q-mood">—</div><div class="qc-label">今日心情</div></div>
     <div class="quick-card"><div class="qc-icon">💧</div><div class="qc-val" id="q-water">—</div><div class="qc-label">喝水 ml</div></div>
-    <div class="quick-card"><div class="qc-icon">🏃</div><div class="qc-val" id="q-exercise">—</div><div class="qc-label">今日運動</div></div>
+    <div class="quick-card"><div class="qc-icon">🏋🏻‍♀️</div><div class="qc-val" id="q-exercise">—</div><div class="qc-label">今日運動</div></div>
   </div>
 
   <div class="card">
-    <div class="card-title">🙏 今日感恩三件事</div>
+    <div class="card-title">🙏🏻 今日感恩三件事</div>
     <div id="gratitude-list" class="empty-today">還沒有記錄，去填寫今天的日記吧！</div>
   </div>
 
@@ -42,38 +62,76 @@
   </div>
 
   <div style="text-align:center; margin-top:8px;">
-    <a href="/record" class="btn btn-primary">✏️ 填寫今天的記錄</a>
+    <a href="/record" class="btn btn-primary">✍🏻 填寫今天的記錄</a>
   </div>
 </div>
 
 <div id="toast"></div>
 <script>
-  const today = new Date().toISOString().split('T')[0];
-  const parts = today.split('-');
-  document.getElementById('today-date').textContent =
-    `${parts[0]} 年 ${parts[1]} 月 ${parts[2]} 日`;
+const today = new Date().toISOString().split('T')[0];
+const parts = today.split('-');
+document.getElementById('today-date').textContent =
+  `${parts[0]} 年 ${parts[1]} 月 ${parts[2]} 日`;
 
-  fetch(`/api/record/${today}`)
-    .then(r => r.json())
-    .then(d => {
-      if (!d) return;
-      document.getElementById('q-weight').textContent = d.weight ?? '—';
-      document.getElementById('q-mood').textContent = d.mood_emoji ?? '—';
-      document.getElementById('q-water').textContent = d.water_ml ?? '—';
-      document.getElementById('q-exercise').textContent = d.exercise ? '✅ 有' : '❌ 無';
+// 名字
+function saveName() {
+  const name = document.getElementById('name-input').value.trim();
+  if (!name) return;
+  localStorage.setItem('diary_username', name);
+  applyName(name);
+  document.getElementById('name-modal').style.display = 'none';
+}
+function applyName(name) {
+  document.getElementById('nav-brand').textContent = `📓 ${name}的日記`;
+  document.getElementById('hero-title').textContent = `${name}的日記`;
+  document.title = `${name}的日記`;
+}
+const savedName = localStorage.getItem('diary_username');
+if (savedName) {
+  applyName(savedName);
+  document.getElementById('name-modal').style.display = 'none';
+}
 
-      const gl = document.getElementById('gratitude-list');
-      const items = [d.gratitude_1, d.gratitude_2, d.gratitude_3].filter(Boolean);
-      if (items.length) {
-        gl.innerHTML = items.map((g, i) =>
-          `<div class="detail-row"><span class="detail-label">第 ${i+1} 件</span><span class="detail-val">${g}</span></div>`
-        ).join('');
-      }
-      if (d.diary) {
-        document.getElementById('diary-preview').textContent = d.diary;
-        document.getElementById('diary-preview').style.color = 'var(--brown)';
-      }
-    });
+// 頭像
+function uploadAvatar(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    localStorage.setItem('diary_avatar', ev.target.result);
+    showAvatar(ev.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+function showAvatar(src) {
+  document.getElementById('avatar-img').src = src;
+  document.getElementById('avatar-img').style.display = 'block';
+  document.getElementById('avatar-placeholder').style.display = 'none';
+}
+const savedAvatar = localStorage.getItem('diary_avatar');
+if (savedAvatar) showAvatar(savedAvatar);
+
+// 記錄摘要
+fetch(`/api/record/${today}`)
+  .then(r => r.json())
+  .then(d => {
+    if (!d) return;
+    document.getElementById('q-weight').textContent = d.weight ?? '—';
+    document.getElementById('q-mood').textContent = d.mood_emoji ?? '—';
+    document.getElementById('q-water').textContent = d.water_ml ?? '—';
+    document.getElementById('q-exercise').textContent = d.exercise ? '✅ 有' : '❌ 無';
+    const gl = document.getElementById('gratitude-list');
+    const items = [d.gratitude_1, d.gratitude_2, d.gratitude_3].filter(Boolean);
+    if (items.length) {
+      gl.innerHTML = items.map((g, i) =>
+        `<div class="detail-row"><span class="detail-label">第 ${i+1} 件</span><span class="detail-val">${g}</span></div>`
+      ).join('');
+    }
+    if (d.diary) {
+      document.getElementById('diary-preview').textContent = d.diary;
+      document.getElementById('diary-preview').style.color = 'var(--brown)';
+    }
+  });
 </script>
 </body>
 </html>

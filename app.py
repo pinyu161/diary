@@ -28,6 +28,7 @@ def init_db():
             diary TEXT,
             gratitude_1 TEXT,
             gratitude_2 TEXT,
+            snack TEXT,
             gratitude_3 TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -63,15 +64,16 @@ def save_record():
     try:
         conn.execute('''
             INSERT INTO daily_records
-                (record_date, weight, breakfast, lunch, dinner, water_ml,
+                (record_date, weight, breakfast, lunch, dinner, snack, water_ml,
                  exercise, had_bowel_movement, mood_emoji, diary,
                  gratitude_1, gratitude_2, gratitude_3)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)
             ON CONFLICT(record_date) DO UPDATE SET
                 weight=excluded.weight,
                 breakfast=excluded.breakfast,
                 lunch=excluded.lunch,
                 dinner=excluded.dinner,
+                snack=excluded.snack,
                 water_ml=excluded.water_ml,
                 exercise=excluded.exercise,
                 had_bowel_movement=excluded.had_bowel_movement,
@@ -86,6 +88,7 @@ def save_record():
             data.get('breakfast'),
             data.get('lunch'),
             data.get('dinner'),
+            data.get('snack'),
             data.get('water_ml', 0),
             data.get('exercise'),
             1 if data.get('had_bowel_movement') else 0,
