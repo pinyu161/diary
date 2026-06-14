@@ -156,6 +156,9 @@ def water_week():
     conn.close()
     return jsonify([dict(r) for r in rows][::-1])
 
+# 確保 gunicorn 啟動時也建立資料表
+init_db()
+
 if __name__ == '__main__':
     init_db()
     app.run(debug=True)
