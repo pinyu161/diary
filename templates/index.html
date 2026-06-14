@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>布丁狗日記 🐶</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<nav>
+  <a class="nav-brand" href="/">🐶 布丁狗日記</a>
+  <div class="nav-links">
+    <a href="/" class="active">首頁</a>
+    <a href="/record">記錄</a>
+    <a href="/calendar">月曆</a>
+    <a href="/stats">統計</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="hero">
+    <div class="hero-dog">🐶</div>
+    <div class="hero-title">今天也要好好生活！</div>
+    <div class="hero-sub" id="today-date"></div>
+  </div>
+
+  <div class="quick-grid" id="quick-grid">
+    <div class="quick-card"><div class="qc-icon">⚖️</div><div class="qc-val" id="q-weight">—</div><div class="qc-label">今日體重 kg</div></div>
+    <div class="quick-card"><div class="qc-icon">😊</div><div class="qc-val" id="q-mood">—</div><div class="qc-label">今日心情</div></div>
+    <div class="quick-card"><div class="qc-icon">💧</div><div class="qc-val" id="q-water">—</div><div class="qc-label">喝水 ml</div></div>
+    <div class="quick-card"><div class="qc-icon">🏃</div><div class="qc-val" id="q-exercise">—</div><div class="qc-label">今日運動</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">🙏 今日感恩三件事</div>
+    <div id="gratitude-list" class="empty-today">還沒有記錄，去填寫今天的日記吧！</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📓 今日日記</div>
+    <div id="diary-preview" class="empty-today">今天還沒有寫日記哦～</div>
+  </div>
+
+  <div style="text-align:center; margin-top:8px;">
+    <a href="/record" class="btn btn-primary">✏️ 填寫今天的記錄</a>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script>
+  const today = new Date().toISOString().split('T')[0];
+  const parts = today.split('-');
+  document.getElementById('today-date').textContent =
+    `${parts[0]} 年 ${parts[1]} 月 ${parts[2]} 日`;
+
+  fetch(`/api/record/${today}`)
+    .then(r => r.json())
+    .then(d => {
+      if (!d) return;
+      document.getElementById('q-weight').textContent = d.weight ?? '—';
+      document.getElementById('q-mood').textContent = d.mood_emoji ?? '—';
+      document.getElementById('q-water').textContent = d.water_ml ?? '—';
+      document.getElementById('q-exercise').textContent = d.exercise ? '✅ 有' : '❌ 無';
+
+      const gl = document.getElementById('gratitude-list');
+      const items = [d.gratitude_1, d.gratitude_2, d.gratitude_3].filter(Boolean);
+      if (items.length) {
+        gl.innerHTML = items.map((g, i) =>
+          `<div class="detail-row"><span class="detail-label">第 ${i+1} 件</span><span class="detail-val">${g}</span></div>`
+        ).join('');
+      }
+      if (d.diary) {
+        document.getElementById('diary-preview').textContent = d.diary;
+        document.getElementById('diary-preview').style.color = 'var(--brown)';
+      }
+    });
+</script>
+</body>
+</html>

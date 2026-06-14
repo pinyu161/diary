@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>月曆日記 — 布丁狗日記</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<nav>
+  <a class="nav-brand" href="/">🐶 布丁狗日記</a>
+  <div class="nav-links">
+    <a href="/">首頁</a>
+    <a href="/record">記錄</a>
+    <a href="/calendar" class="active">月曆</a>
+    <a href="/stats">統計</a>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="card">
+    <div class="calendar-header">
+      <button class="cal-nav" id="prev-month">‹</button>
+      <div class="cal-title" id="cal-title"></div>
+      <button class="cal-nav" id="next-month">›</button>
+    </div>
+    <div class="cal-grid">
+      <div class="cal-day-label">日</div>
+      <div class="cal-day-label">一</div>
+      <div class="cal-day-label">二</div>
+      <div class="cal-day-label">三</div>
+      <div class="cal-day-label">四</div>
+      <div class="cal-day-label">五</div>
+      <div class="cal-day-label">六</div>
+    </div>
+    <div class="cal-grid" id="cal-body" style="margin-top:4px;"></div>
+  </div>
+
+  <div class="card" style="font-size:0.82rem;color:var(--brown-light);">
+    <div class="card-title">📖 使用說明</div>
+    有記錄的日期會顯示你的心情 emoji，點擊任一日期可以查看當天的完整記錄。今天的日期會有特別標示 🐶
+  </div>
+</div>
+
+<!-- 彈窗 -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-date" id="modal-date"></div>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+const today = new Date();
+let viewYear = today.getFullYear();
+let viewMonth = today.getMonth() + 1;
+let monthData = {};
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function renderCalendar() {
+  document.getElementById('cal-title').textContent =
+    `${viewYear} 年 ${pad(viewMonth)} 月`;
+
+  fetch(`/api/records/${viewYear}/${viewMonth}`)
+    .then(r => r.json())
+    .then(rows => {
+      monthData = {};
+      rows.forEach(r => { monthData[r.record_date] = r; });
+      buildGrid();
+    });
+}
+
+function buildGrid() {
+  const body = document.getElementById('cal-body');
+  body.innerHTML = '';
+
+  const firstDay = new Date(viewYear, viewMonth - 1, 1).getDay();
+  const daysInMonth = new Date(viewYear, viewMonth, 0).getDate();
+  const todayStr = today.toISOString().split('T')[0];
+
+  for (let i = 0; i < firstDay; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'cal-cell empty';
+    body.appendChild(empty);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${viewYear}-${pad(viewMonth)}-${pad(d)}`;
+    const cell = document.createElement('div');
+    cell.className = 'cal-cell' + (dateStr === todayStr ? ' today' : '');
+    cell.innerHTML = `<span class="date-num">${d}</span>` +
+      (monthData[dateStr]?.mood_emoji
+        ? `<span class="date-emoji">${monthData[dateStr].mood_emoji}</span>` : '');
+    cell.addEventListener('click', () => openModal(dateStr));
+    body.appendChild(cell);
+  }
+}
+
+function openModal(date) {
+  document.getElementById('modal-date').textContent = date.replace(/-/g, ' / ') + ' 的記錄';
+  const body = document.getElementById('modal-body');
+
+  fetch(`/api/record/${date}`)
+    .then(r => r.json())
+    .then(d => {
+      if (!d) {
+        body.innerHTML = '<div class="empty-today">這天還沒有記錄哦 🐶<br><a href="/record" style="color:var(--brown-mid);font-weight:700;">去填寫</a></div>';
+      } else {
+        const rows = [
+          ['心情', d.mood_emoji ?? '—'],
+          ['體重', d.weight ? d.weight + ' kg' : '—'],
+          ['早餐', d.breakfast ?? '—'],
+          ['午餐', d.lunch ?? '—'],
+          ['晚餐', d.dinner ?? '—'],
+          ['喝水', d.water_ml ? d.water_ml + ' ml' : '—'],
+          ['運動', d.exercise ?? '無'],
+          ['大便', d.had_bowel_movement ? '✅ 有' : '❌ 無'],
+          ['感恩1', d.gratitude_1 ?? '—'],
+          ['感恩2', d.gratitude_2 ?? '—'],
+          ['感恩3', d.gratitude_3 ?? '—'],
+          ['日記', d.diary ?? '—'],
+        ];
+        body.innerHTML = rows.map(([l, v]) =>
+          `<div class="detail-row"><span class="detail-label">${l}</span><span class="detail-val">${v}</span></div>`
+        ).join('');
+      }
+      document.getElementById('modal-overlay').classList.add('open');
+    });
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+document.getElementById('prev-month').addEventListener('click', () => {
+  viewMonth--;
+  if (viewMonth < 1) { viewMonth = 12; viewYear--; }
+  renderCalendar();
+});
+document.getElementById('next-month').addEventListener('click', () => {
+  viewMonth++;
+  if (viewMonth > 12) { viewMonth = 1; viewYear++; }
+  renderCalendar();
+});
+
+renderCalendar();
+</script>
+</body>
+</html>

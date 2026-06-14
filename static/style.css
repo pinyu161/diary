@@ -1,0 +1,401 @@
+/* ── 布丁狗配色系統 ── */
+:root {
+  --yellow-light: #FFFBE8;
+  --yellow:       #FFF2CC;
+  --yellow-mid:   #FFE680;
+  --yellow-deep:  #E8D48B;
+  --brown:        #5C4033;
+  --brown-mid:    #7A5544;
+  --brown-light:  #A07060;
+  --brown-pale:   #C9A990;
+  --white:        #FFFFFF;
+  --shadow:       rgba(92,64,51,0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif;
+  background: var(--yellow-light);
+  color: var(--brown);
+  min-height: 100vh;
+}
+
+/* ── 導覽列 ── */
+nav {
+  background: var(--brown);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 56px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+.nav-brand {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--yellow);
+  text-decoration: none;
+  margin-right: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-links { display: flex; gap: 4px; }
+.nav-links a {
+  color: var(--brown-pale);
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  transition: background 0.18s, color 0.18s;
+}
+.nav-links a:hover, .nav-links a.active {
+  background: var(--yellow);
+  color: var(--brown);
+}
+
+/* ── 頁面容器 ── */
+.page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+}
+
+/* ── 卡片 ── */
+.card {
+  background: var(--yellow);
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 20px;
+  border: 2px solid var(--yellow-deep);
+  box-shadow: 0 3px 12px var(--shadow);
+}
+.card-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--brown);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── 表單元素 ── */
+label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--brown-mid);
+  margin-bottom: 5px;
+}
+input[type="text"],
+input[type="number"],
+input[type="date"],
+textarea,
+select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 2px solid var(--yellow-deep);
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--brown);
+  font-size: 0.92rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.18s;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: var(--brown-light);
+}
+textarea { resize: vertical; min-height: 90px; }
+.form-row { margin-bottom: 14px; }
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 540px) { .form-grid { grid-template-columns: 1fr; } }
+
+/* ── 按鈕 ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 24px;
+  border-radius: 14px;
+  border: none;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: var(--brown);
+  color: var(--yellow);
+  box-shadow: 0 3px 10px var(--shadow);
+}
+.btn-primary:hover { background: var(--brown-mid); }
+.btn-secondary {
+  background: var(--yellow-deep);
+  color: var(--brown);
+}
+.btn-secondary:hover { background: var(--yellow-mid); }
+
+/* ── Emoji 心情選擇器 ── */
+.mood-picker {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.mood-btn {
+  font-size: 1.8rem;
+  background: var(--white);
+  border: 2.5px solid var(--yellow-deep);
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, transform 0.15s;
+  user-select: none;
+}
+.mood-btn:hover { transform: scale(1.12); }
+.mood-btn.selected {
+  border-color: var(--brown);
+  background: var(--yellow-mid);
+  transform: scale(1.15);
+}
+
+/* ── 水量滑桿 ── */
+.water-display {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--brown);
+  text-align: center;
+  margin-bottom: 8px;
+}
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--yellow-deep);
+  outline: none;
+  border: none;
+  padding: 0;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--brown);
+  cursor: pointer;
+}
+
+/* ── Checkbox ── */
+.check-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--white);
+  border-radius: 12px;
+  border: 2px solid var(--yellow-deep);
+  cursor: pointer;
+}
+.check-row input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--brown);
+  cursor: pointer;
+}
+.check-row span { font-weight: 600; font-size: 0.92rem; }
+
+/* ── Toast 通知 ── */
+#toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--brown);
+  color: var(--yellow);
+  padding: 12px 24px;
+  border-radius: 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: transform 0.3s, opacity 0.3s;
+  z-index: 999;
+  white-space: nowrap;
+}
+#toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* ── 月曆 ── */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.cal-nav {
+  background: var(--yellow-deep);
+  border: none;
+  border-radius: 10px;
+  width: 36px;
+  height: 36px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  color: var(--brown);
+  font-weight: 700;
+  transition: background 0.15s;
+}
+.cal-nav:hover { background: var(--yellow-mid); }
+.cal-title { font-size: 1.1rem; font-weight: 700; }
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+}
+.cal-day-label {
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--brown-light);
+  padding: 4px 0;
+}
+.cal-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  cursor: pointer;
+  background: var(--white);
+  border: 2px solid transparent;
+  transition: border-color 0.15s, background 0.15s;
+  min-width: 0;
+}
+.cal-cell:hover { border-color: var(--brown-light); }
+.cal-cell.today { border-color: var(--brown); background: var(--yellow-mid); }
+.cal-cell.empty { background: transparent; cursor: default; }
+.cal-cell .date-num { font-size: 0.78rem; font-weight: 600; color: var(--brown-mid); }
+.cal-cell .date-emoji { font-size: 1rem; line-height: 1; }
+
+/* ── 彈窗 ── */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(92,64,51,0.3);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--yellow);
+  border-radius: 24px;
+  padding: 28px;
+  max-width: 480px;
+  width: 90%;
+  border: 2.5px solid var(--yellow-deep);
+  max-height: 80vh;
+  overflow-y: auto;
+  position: relative;
+}
+.modal-close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  cursor: pointer;
+  color: var(--brown-light);
+}
+.modal-date { font-size: 1rem; font-weight: 700; margin-bottom: 14px; }
+.detail-row {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--yellow-deep);
+  font-size: 0.88rem;
+}
+.detail-row:last-child { border-bottom: none; }
+.detail-label { font-weight: 600; color: var(--brown-mid); min-width: 80px; }
+.detail-val { color: var(--brown); }
+
+/* ── 圖表頁 ── */
+.chart-wrap {
+  position: relative;
+  height: 240px;
+}
+.stat-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+.stat-chip {
+  background: var(--white);
+  border: 2px solid var(--yellow-deep);
+  border-radius: 30px;
+  padding: 6px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── 首頁 ── */
+.hero {
+  text-align: center;
+  padding: 32px 20px 24px;
+}
+.hero-dog { font-size: 4rem; line-height: 1; margin-bottom: 8px; }
+.hero-title { font-size: 1.6rem; font-weight: 800; color: var(--brown); }
+.hero-sub { color: var(--brown-light); font-size: 0.9rem; margin-top: 4px; }
+.quick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.quick-card {
+  background: var(--yellow);
+  border-radius: 18px;
+  border: 2px solid var(--yellow-deep);
+  padding: 18px 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+.quick-card .qc-icon { font-size: 1.8rem; }
+.quick-card .qc-val {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--brown);
+  margin: 4px 0 2px;
+}
+.quick-card .qc-label { font-size: 0.74rem; color: var(--brown-light); font-weight: 600; }
+.empty-today {
+  text-align: center;
+  padding: 20px;
+  color: var(--brown-light);
+  font-size: 0.9rem;
+}

@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>統計圖表 — 布丁狗日記</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+<nav>
+  <a class="nav-brand" href="/">🐶 布丁狗日記</a>
+  <div class="nav-links">
+    <a href="/">首頁</a>
+    <a href="/record">記錄</a>
+    <a href="/calendar">月曆</a>
+    <a href="/stats" class="active">統計</a>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- 體重折線圖 -->
+  <div class="card">
+    <div class="card-title">📈 體重趨勢</div>
+    <div class="chart-wrap">
+      <canvas id="weight-chart"></canvas>
+    </div>
+    <div class="stat-chips" id="weight-stats"></div>
+  </div>
+
+  <!-- 每月心情 -->
+  <div class="card">
+    <div class="card-title">
+      😊 每月心情統計
+      <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+        <button class="cal-nav" id="mood-prev" style="width:28px;height:28px;font-size:0.9rem;">‹</button>
+        <span id="mood-month-label" style="font-size:0.88rem;font-weight:700;"></span>
+        <button class="cal-nav" id="mood-next" style="width:28px;height:28px;font-size:0.9rem;">›</button>
+      </div>
+    </div>
+    <div class="chart-wrap" style="height:200px;">
+      <canvas id="mood-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- 喝水量 -->
+  <div class="card">
+    <div class="card-title">💧 近 7 天喝水量</div>
+    <div class="chart-wrap" style="height:200px;">
+      <canvas id="water-chart"></canvas>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const brown = '#5C4033';
+const yellow = '#FFF2CC';
+const yellowDeep = '#E8D48B';
+const brownLight = '#A07060';
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+// ── 體重折線圖 ──────────────────────────────────────
+fetch('/api/weight-history')
+  .then(r => r.json())
+  .then(rows => {
+    const labels = rows.map(r => r.record_date.slice(5)); // MM-DD
+    const vals = rows.map(r => r.weight);
+
+    new Chart(document.getElementById('weight-chart'), {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: '體重 (kg)',
+          data: vals,
+          borderColor: brown,
+          backgroundColor: 'rgba(92,64,51,0.10)',
+          borderWidth: 2.5,
+          pointBackgroundColor: yellow,
+          pointBorderColor: brown,
+          pointBorderWidth: 2,
+          pointRadius: 5,
+          tension: 0.35,
+          fill: true,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: brown,
+            titleColor: yellow,
+            bodyColor: yellow,
+          }
+        },
+        scales: {
+          x: { ticks: { color: brownLight, font: { size: 11 } }, grid: { color: '#EFE4C0' } },
+          y: { ticks: { color: brownLight, font: { size: 11 } }, grid: { color: '#EFE4C0' } }
+        }
+      }
+    });
+
+    // 最高/最低/最新
+    if (vals.length) {
+      const max = Math.max(...vals);
+      const min = Math.min(...vals);
+      const latest = vals[vals.length - 1];
+      document.getElementById('weight-stats').innerHTML = `
+        <div class="stat-chip">📊 最新 <b>${latest} kg</b></div>
+        <div class="stat-chip">🔺 最高 <b>${max} kg</b></div>
+        <div class="stat-chip">🔻 最低 <b>${min} kg</b></div>
+        <div class="stat-chip">📏 共 <b>${vals.length}</b> 筆記錄</div>
+      `;
+    }
+  });
+
+// ── 心情統計 ──────────────────────────────────────
+const today = new Date();
+let moodYear = today.getFullYear();
+let moodMonth = today.getMonth() + 1;
+let moodChartInst = null;
+
+function loadMoodChart() {
+  document.getElementById('mood-month-label').textContent =
+    `${moodYear} 年 ${pad(moodMonth)} 月`;
+
+  fetch(`/api/mood-stats/${moodYear}/${moodMonth}`)
+    .then(r => r.json())
+    .then(rows => {
+      const labels = rows.map(r => r.mood_emoji);
+      const counts = rows.map(r => r.cnt);
+
+      if (moodChartInst) moodChartInst.destroy();
+
+      moodChartInst = new Chart(document.getElementById('mood-chart'), {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            label: '次數',
+            data: counts,
+            backgroundColor: 'rgba(232,212,139,0.85)',
+            borderColor: brown,
+            borderWidth: 2,
+            borderRadius: 8,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: brown,
+              titleColor: yellow,
+              bodyColor: yellow,
+              callbacks: {
+                title: ctx => ctx[0].label + ' 心情',
+                label: ctx => `出現 ${ctx.raw} 次`
+              }
+            }
+          },
+          scales: {
+            x: { ticks: { font: { size: 18 } }, grid: { display: false } },
+            y: {
+              ticks: { color: brownLight, stepSize: 1 },
+              grid: { color: '#EFE4C0' },
+              beginAtZero: true
+            }
+          }
+        }
+      });
+    });
+}
+
+document.getElementById('mood-prev').addEventListener('click', () => {
+  moodMonth--;
+  if (moodMonth < 1) { moodMonth = 12; moodYear--; }
+  loadMoodChart();
+});
+document.getElementById('mood-next').addEventListener('click', () => {
+  moodMonth++;
+  if (moodMonth > 12) { moodMonth = 1; moodYear++; }
+  loadMoodChart();
+});
+
+loadMoodChart();
+
+// ── 喝水量長條圖 ──────────────────────────────────────
+fetch('/api/water-week')
+  .then(r => r.json())
+  .then(rows => {
+    const labels = rows.map(r => r.record_date.slice(5));
+    const vals = rows.map(r => r.water_ml ?? 0);
+
+    new Chart(document.getElementById('water-chart'), {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{
+          label: '喝水量 (ml)',
+          data: vals,
+          backgroundColor: rows.map(r =>
+            (r.water_ml ?? 0) >= 2000 ? 'rgba(92,64,51,0.75)' : 'rgba(232,212,139,0.85)'
+          ),
+          borderColor: brown,
+          borderWidth: 2,
+          borderRadius: 8,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: brown,
+            titleColor: yellow,
+            bodyColor: yellow,
+            callbacks: { label: ctx => `${ctx.raw} ml` }
+          }
+        },
+        scales: {
+          x: { ticks: { color: brownLight, font: { size: 11 } }, grid: { display: false } },
+          y: {
+            ticks: { color: brownLight },
+            grid: { color: '#EFE4C0' },
+            beginAtZero: true,
+            suggestedMax: 3000,
+          }
+        }
+      }
+    });
+  });
+</script>
+</body>
+</html>
